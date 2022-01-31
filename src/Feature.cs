@@ -36,33 +36,70 @@ namespace TimHanewich.NLP
                 ThisNumberFeature.Offset = NextNumIndex;
 
                 //Find the end location of the number
-                int NextSpaceLocation = src.IndexOf(" ", NextNumIndex);
-                if (NextSpaceLocation > -1)
+                int NumberEndLocation = src.IndexOf(new string[]{" ", Environment.NewLine}, NextNumIndex);
+                if (NumberEndLocation > -1)
                 {
                     //Get the number text - i.e. 72%, 400, 10, etc. (NOT "million", or "billion" if it comes after)
-                    string NumberTxt = src.Substring(NextNumIndex, NextSpaceLocation - NextNumIndex);
+                    string NumberTxt = src.Substring(NextNumIndex, NumberEndLocation - NextNumIndex);
 
-                    //Get the position of the space that comes AFTER the word that immediately comes after the number portion above
-                    int NextNextSpaceLocation = src.IndexOf(" ", NextSpaceLocation + 1);
-                    if (NextNextSpaceLocation > -1)
+                    //If the last chracter in the numebr text is a comma or a period, move it back one
+                    string LastChar = NumberTxt.Substring(NumberTxt.Length - 1, 1);
+                    if (LastChar == "," || LastChar == ".")
                     {
-                        string TrailingWord = src.Substring(NextSpaceLocation, NextNextSpaceLocation - NextSpaceLocation);
-                        TrailingWord = TrailingWord.ToLower().Trim();
-                        if (TrailingWord == "hundred" || TrailingWord == "thousand" || TrailingWord == "million" || TrailingWord == "billion" || TrailingWord == "trillion")
+                        NumberEndLocation = NumberEndLocation - 1;
+
+                        //No re-get the number txt, this time with the new number end location
+                        NumberTxt = src.Substring(NextNumIndex, NumberEndLocation - NextNumIndex);
+                    }
+                    
+                    //Do a quick gut-check... is this even a number? If we detected something that is NOT a number, don't even bother logging it
+                    bool IsDetectedNumber = false;
+                    try
+                    {
+                        if (NumberTxt.Contains("%"))
                         {
-                            ThisNumberFeature.Length = NextNextSpaceLocation - NextNumIndex;
+                            IsDetectedNumber = true;
+                        }
+                        else
+                        {
+                            Convert.ToSingle(NumberTxt);
+                            IsDetectedNumber = true;
                         }
                     }
-
-                    //If length is still 0, it means we did not a append a "hundred", "thousand", etc to the end. So just set the length to the number text, i.e. "400"
-                    if (ThisNumberFeature.Length == 0) //If Length is still 0
+                    catch
                     {
-                        ThisNumberFeature.Length = NextSpaceLocation - NextNumIndex;
+                        IsDetectedNumber = false;   
+                    }
+
+                    //If it is a number that we detected, move on
+                    if (IsDetectedNumber)
+                    {
+                        //Get the position of the space that comes AFTER the word that immediately comes after the number portion above
+                        int NextNextSpaceLocation = src.IndexOf(" ", NumberEndLocation + 1);
+                        if (NextNextSpaceLocation > -1)
+                        {
+                            string TrailingWord = src.Substring(NumberEndLocation, NextNextSpaceLocation - NumberEndLocation);
+                            TrailingWord = TrailingWord.ToLower().Trim();
+                            if (TrailingWord == "hundred" || TrailingWord == "thousand" || TrailingWord == "million" || TrailingWord == "billion" || TrailingWord == "trillion")
+                            {
+                                ThisNumberFeature.Length = NextNextSpaceLocation - NextNumIndex;
+                            }
+                        }
+
+                        //If length is still 0, it means we did not a append a "hundred", "thousand", etc to the end. So just set the length to the number text, i.e. "400"
+                        if (ThisNumberFeature.Length == 0) //If Length is still 0
+                        {
+                            ThisNumberFeature.Length = NumberEndLocation - NextNumIndex;
+                        }
+
+
+                        //Add it
+                        ToReturn.Add(ThisNumberFeature);
+
                     }
                 }
                 
-                //Add it
-                ToReturn.Add(ThisNumberFeature);
+                
 
                 //Refresh next num index
                 NextNumIndex = FindNextNumberIndex(src, NextNumIndex + 1);
