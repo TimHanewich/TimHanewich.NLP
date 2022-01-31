@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace TimHanewich.NLP
 {
@@ -18,6 +19,17 @@ namespace TimHanewich.NLP
             string ToReturn = source.Substring(Offset, Length);
             return ToReturn;
         }
+
+
+        #region "toolkit"
+
+        public int FindNextNumberIndex(string in_text, int start_at)
+        {
+            return in_text.IndexOf(new string[]{"0", "1", "2", "3", "4", "5", "6", "7", "8", "9"}, start_at);
+        }
+
+
+        #endregion
 
     }
 }
