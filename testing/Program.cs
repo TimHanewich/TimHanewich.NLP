@@ -1,4 +1,5 @@
 ﻿using System;
+using TimHanewich.NLP;
 
 namespace testing
 {
@@ -6,7 +7,16 @@ namespace testing
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            
+            Feature f = new Feature();
+            Console.WriteLine(f.FindNextNumberIndex("My name is Tim 2 hehe tim 2?!", 0));
+            Console.WriteLine(f.FindNextNumberIndex("My name is Tim 2 hehe tim 2?!", 15 + 1));
+
+
+            //string s = "Sup my name is... Tim. What is your name? Tim!";
+            //Console.WriteLine(s.IndexOf(new string[]{"hippo", "monkey"}, 0));
+
+
         }
     }
 }

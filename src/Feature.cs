@@ -23,11 +23,11 @@ namespace TimHanewich.NLP
 
         #region "toolkit"
 
+        //Finds the next number (0, 1, 2, 3, 4, 5, 6, 7, 8, 9) in a string
         public int FindNextNumberIndex(string in_text, int start_at)
         {
             return in_text.IndexOf(new string[]{"0", "1", "2", "3", "4", "5", "6", "7", "8", "9"}, start_at);
         }
-
 
         #endregion
 
