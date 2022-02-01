@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using TimHanewich.Toolkit;
+using TimHanewich.Toolkit.TextAnalysis;
 
 namespace TimHanewich.NLP
 {
@@ -64,6 +66,22 @@ namespace TimHanewich.NLP
 
 
 
+            return ToReturn.ToArray();
+        }
+
+        public static string[] SeparateWords(this string src)
+        {
+            List<string> ToReturn = new List<string>();
+            foreach (string s in src.SeparateSentences())
+            {
+                string[] words = s.Split(new string[]{" "}, StringSplitOptions.RemoveEmptyEntries);
+                foreach (string word in words)
+                {
+                    string WordToAdd = HanewichStringToolkit.FilterCharacters(word, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890");
+                    WordToAdd = WordToAdd.ToLower().Trim();
+                    ToReturn.Add(WordToAdd);
+                }
+            }
             return ToReturn.ToArray();
         }
 
