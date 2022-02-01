@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace TimHanewich.NLP
 {
@@ -30,6 +31,41 @@ namespace TimHanewich.NLP
             return ToReturn;
         }
 
+
+        public static string[] SeparateSentences(this string src)
+        {
+            string[] parts = src.Split(new string[]{". ", "! ", "? ", Environment.NewLine}, StringSplitOptions.RemoveEmptyEntries);
+            
+
+            //Get a list of sentences we want to return
+            List<string> ToReturn = new List<string>();
+            foreach (string p in parts)
+            {
+                string ThisSentence = p;
+                if (ThisSentence != "")
+                {
+                    ThisSentence = ThisSentence.Trim();
+                    ToReturn.Add(ThisSentence);
+                }
+            }
+
+
+            //Ensure each sentence has the correct puncutation at the end of it
+            for (int t = 0; t < ToReturn.Count; t++)
+            {
+                string LastChar = ToReturn[t].Substring(ToReturn[t].Length - 1, 1);
+                if (LastChar != "." && LastChar != "?" && LastChar != "!") //If it does NOT have punctuation, we need to append it to it
+                {
+                    int loc1 = src.IndexOf(ToReturn[t]); //Get the location of the begin
+                    string ActualPunctuation = src.Substring(loc1 + ToReturn[t].Length, 1);
+                    ToReturn[t] = ToReturn[t] + ActualPunctuation;
+                }
+            }
+
+
+
+            return ToReturn.ToArray();
+        }
 
     }
 }
