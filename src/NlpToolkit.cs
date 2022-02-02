@@ -137,6 +137,7 @@ namespace TimHanewich.NLP
                     {
                         if (ProductBuffer.Count > 0)
                         {
+                            //Construct the full phrase
                             string ThisProductToAdd = "";
                             foreach (string s in ProductBuffer)
                             {
@@ -144,8 +145,13 @@ namespace TimHanewich.NLP
                             }
                             ThisProductToAdd = ThisProductToAdd.Substring(0,ThisProductToAdd.Length - 1);
 
-                            ToReturn.Add(ThisProductToAdd);
-                            ProductBuffer.Clear();
+                            //Ensure this phrase is actually said in the document
+                            //For example, if the phrase is split by a comma, that would not have been picked up. The words would just be provided in a list
+                            if (src.Contains(ThisProductToAdd))
+                            {
+                                ToReturn.Add(ThisProductToAdd);
+                                ProductBuffer.Clear();
+                            }
                         }
                     }
                 }
@@ -153,6 +159,7 @@ namespace TimHanewich.NLP
                 //Do a final buffer dump if there is content
                 if (ProductBuffer.Count > 0)
                 {
+                    //Construct the full phrase
                     string ThisProductToAdd = "";
                     foreach (string s in ProductBuffer)
                     {
@@ -160,8 +167,13 @@ namespace TimHanewich.NLP
                     }
                     ThisProductToAdd = ThisProductToAdd.Substring(0,ThisProductToAdd.Length - 1);
 
-                    ToReturn.Add(ThisProductToAdd);
-                    ProductBuffer.Clear();
+                    //Ensure this phrase is actually said in the document
+                    //For example, if the phrase is split by a comma, that would not have been picked up. The words would just be provided in a list
+                    if (src.Contains(ThisProductToAdd))
+                    {
+                        ToReturn.Add(ThisProductToAdd);
+                        ProductBuffer.Clear();
+                    }
                 }
             
             }
