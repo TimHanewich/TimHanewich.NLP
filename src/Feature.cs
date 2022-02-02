@@ -44,8 +44,14 @@ namespace TimHanewich.NLP
                 //Start location
                 ThisNumberFeature.Offset = NextNumIndex;
 
+                //Construct a list of the characters that would indicate an end of a number
+                List<string> IndicatesEndOfNumber = new List<string>();
+                IndicatesEndOfNumber.AddRange(NlpToolkit.SentenceTerminators);
+                IndicatesEndOfNumber.Add(" ");
+
+
                 //Find the end location of the number
-                int NumberEndLocation = src.IndexOf(new string[]{" ", Environment.NewLine}, NextNumIndex);
+                int NumberEndLocation = src.IndexOf(IndicatesEndOfNumber.ToArray(), NextNumIndex);
                 if (NumberEndLocation > -1)
                 {
                     //Get the number text - i.e. 72%, 400, 10, etc. (NOT "million", or "billion" if it comes after)
