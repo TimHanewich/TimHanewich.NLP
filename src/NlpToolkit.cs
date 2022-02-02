@@ -36,7 +36,7 @@ namespace TimHanewich.NLP
 
         public static string[] SeparateSentences(this string src)
         {
-            string[] parts = src.Split(new string[]{". ", "! ", "? ", Environment.NewLine}, StringSplitOptions.RemoveEmptyEntries);
+            string[] parts = src.Split(new string[]{". ", "! ", "? ", ".\u00A0", Environment.NewLine}, StringSplitOptions.RemoveEmptyEntries);
             
 
             //Get a list of sentences we want to return
@@ -59,8 +59,14 @@ namespace TimHanewich.NLP
                 if (LastChar != "." && LastChar != "?" && LastChar != "!") //If it does NOT have punctuation, we need to append it to it
                 {
                     int loc1 = src.IndexOf(ToReturn[t]); //Get the location of the begin
-                    string ActualPunctuation = src.Substring(loc1 + ToReturn[t].Length, 1);
-                    ToReturn[t] = ToReturn[t] + ActualPunctuation;
+                    if (loc1 > -1)
+                    {
+                        if (src.Length > ToReturn[t].Length)
+                        {
+                            string ActualPunctuation = src.Substring(loc1 + ToReturn[t].Length, 1);
+                            ToReturn[t] = ToReturn[t] + ActualPunctuation;
+                        }
+                    }
                 }
             }
 
@@ -83,6 +89,102 @@ namespace TimHanewich.NLP
                 }
             }
             return ToReturn.ToArray();
+        }
+
+        //Identifies things like products, organizations, places, etc. For example, something that deserves to be capitalized.
+        public static string[] IdentifyPotentialEntities(this string src)
+        {
+            List<string> ToReturn = new List<string>();
+            foreach (string sentence in src.SeparateSentences())
+            {
+
+                //Split into words
+                string[] words = sentence.SeparateWords();
+
+                //Buffer (in case a product is multiple words)
+                List<string> ProductBuffer = new List<string>();
+
+                //Go through each word and collect potentials
+                for (int t = 1; t < words.Length; t++)
+                {
+                    string ThisWord = words[t];
+
+                    //Assess if this word is potentially something important
+                    bool IsImportantWord = false;
+                    if (ThisWord != ThisWord.ToLower() && ThisWord.ToUpper() != ThisWord) //Crude way of checking if it is capitalized. And checking that it is not ALL capitalized (i.e. an acronym)
+                    {
+                        IsImportantWord = true;
+                    }
+                    else if (ProductBuffer.Count > 0) //Only consider these as important indicators if they are NOT the first word in the important phrase. i.e. "Dynamics 365" is important.... but "365" on its own is not.
+                    {
+                        if (TimHanewich.Toolkit.HanewichStringToolkit.FilterCharacters(ThisWord, "1234567890.") == ThisWord) //Checking if it is numeric
+                        {
+                            IsImportantWord = true;
+                        }
+                        else if (ThisWord == "&")
+                        {
+                            IsImportantWord = true;
+                        }
+                    }
+                    
+                    
+                    //Is the first letter capitalized?
+                    if (IsImportantWord)
+                    {
+                        ProductBuffer.Add(ThisWord);
+                    }
+                    else //The first letter is not capitalized. So dump the buffer and clear
+                    {
+                        if (ProductBuffer.Count > 0)
+                        {
+                            string ThisProductToAdd = "";
+                            foreach (string s in ProductBuffer)
+                            {
+                                ThisProductToAdd = ThisProductToAdd + s + " ";
+                            }
+                            ThisProductToAdd = ThisProductToAdd.Substring(0,ThisProductToAdd.Length - 1);
+
+                            ToReturn.Add(ThisProductToAdd);
+                            ProductBuffer.Clear();
+                        }
+                    }
+                }
+            
+                //Do a final buffer dump if there is content
+                if (ProductBuffer.Count > 0)
+                {
+                    string ThisProductToAdd = "";
+                    foreach (string s in ProductBuffer)
+                    {
+                        ThisProductToAdd = ThisProductToAdd + s + " ";
+                    }
+                    ThisProductToAdd = ThisProductToAdd.Substring(0,ThisProductToAdd.Length - 1);
+
+                    ToReturn.Add(ThisProductToAdd);
+                    ProductBuffer.Clear();
+                }
+            
+            }
+
+            //Cleanse the array to return before returning (remove duplicates, etc)
+            List<string> ToReturnCleansed = new List<string>();
+            foreach (string s in ToReturn)
+            {
+                if (ToReturnCleansed.Contains(s) == false)
+                {
+                    ToReturnCleansed.Add(s);
+                }
+            }
+            ToReturn = ToReturnCleansed;
+
+
+            return ToReturn.ToArray();
+        }
+
+        public static int CountOccurences(this string src, string phrase)
+        {
+            string[] parts = src.Split(new string[]{phrase}, StringSplitOptions.None);
+            return parts.Length - 1;
         }
 
     }
