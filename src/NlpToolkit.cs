@@ -50,7 +50,7 @@ namespace TimHanewich.NLP
                     }
                     else //Since ToReturn already has a value (we found someting close earlier), we must test to see if this one is closer.
                     {
-                        if (TryThis < ToReturn)
+                        if (TryThis > ToReturn)
                         {
                             ToReturn = TryThis;
                         }
