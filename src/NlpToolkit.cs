@@ -78,7 +78,7 @@ namespace TimHanewich.NLP
                 foreach (string word in words)
                 {
                     string WordToAdd = HanewichStringToolkit.FilterCharacters(word, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890");
-                    WordToAdd = WordToAdd.ToLower().Trim();
+                    WordToAdd = WordToAdd.Trim();
                     ToReturn.Add(WordToAdd);
                 }
             }
