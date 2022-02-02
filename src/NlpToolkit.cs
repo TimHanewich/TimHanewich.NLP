@@ -36,7 +36,7 @@ namespace TimHanewich.NLP
 
         public static string[] SeparateSentences(this string src)
         {
-            string[] parts = src.Split(new string[]{". ", "! ", "? ", ".\u00A0", Environment.NewLine}, StringSplitOptions.RemoveEmptyEntries);
+            string[] parts = src.Split(new string[]{". ", "! ", "? ", ".\u00A0", Environment.NewLine}, StringSplitOptions.RemoveEmptyEntries); //The u00A0 is a non-breaking space character (https://www.compart.com/en/unicode/U+00A0) 
             
 
             //Get a list of sentences we want to return
