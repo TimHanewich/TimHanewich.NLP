@@ -94,7 +94,7 @@ namespace TimHanewich.NLP
                 
 
                 //Refresh next num index
-                NextNumIndex = FindNextNumberIndex(src, NextNumIndex + 1);
+                NextNumIndex = FindNextNumberIndex(src, NextNumIndex + ThisNumberFeature.Length);
             }
 
             return ToReturn.ToArray();
@@ -107,11 +107,7 @@ namespace TimHanewich.NLP
         //Finds the next number (0, 1, 2, 3, 4, 5, 6, 7, 8, 9) in a string
         private static int FindNextNumberIndex(string in_text, int start_at)
         {
-            int ToReturn = in_text.IndexOf(new string[]{" 0", " 1", " 2", " 3", " 4", " 5", " 6", " 7", " 8", " 9"}, start_at); //Places spaces in front. Because if we are looking at a number such as 4000, it would find the 4, next 0, next 0, and next 0, as the "next number". But this method is only supposed to return the start indexes of numbers that come aftet spaces.
-            if (ToReturn > -1) //If we found something, add one to it. Because we actually want to return the position of the number, not the space. BUT, if it is negative 1 (no numbers were found at all), leave it at -1 and return that.
-            {
-                ToReturn = ToReturn + 1;
-            }
+            int ToReturn = in_text.IndexOf(new string[]{"0", "1", "2", "3", "4", "5", "6", "7", "8", "9"}, start_at);
             return ToReturn;
         }
 
