@@ -20,6 +20,15 @@ namespace TimHanewich.NLP
             return ToReturn;
         }
 
+        public string ReadContainingSentence(string source)
+        {
+            int SentenceBegins = source.LastIndexOf(NlpToolkit.SentenceTerminators, Offset);
+            int SentenceEnds = source.IndexOf(NlpToolkit.SentenceTerminators, Offset + Length);
+            string ContainingSentence = source.Substring(SentenceBegins + 1, SentenceEnds - SentenceBegins + 1);
+            ContainingSentence = ContainingSentence.Trim();
+            return ContainingSentence;
+        }
+
 
         #region "Extraction Constructors"
 
@@ -109,7 +118,6 @@ namespace TimHanewich.NLP
         }
 
         #endregion
-
 
         #region "toolkit"
 

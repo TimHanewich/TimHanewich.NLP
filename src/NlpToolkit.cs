@@ -66,7 +66,7 @@ namespace TimHanewich.NLP
 
         public static string[] SeparateSentences(this string src)
         {
-            string[] parts = src.Split(new string[]{". ", "! ", "? ", ".\u00A0", Environment.NewLine}, StringSplitOptions.RemoveEmptyEntries); //The u00A0 is a non-breaking space character (https://www.compart.com/en/unicode/U+00A0) 
+            string[] parts = src.Split(SentenceTerminators, StringSplitOptions.RemoveEmptyEntries); //The u00A0 is a non-breaking space character (https://www.compart.com/en/unicode/U+00A0) 
             
 
             //Get a list of sentences we want to return
@@ -235,6 +235,30 @@ namespace TimHanewich.NLP
             string[] parts = src.Split(new string[]{phrase + " ", phrase + ".", phrase + "!", phrase + "?", phrase + ","}, StringSplitOptions.None);
             return parts.Length - 1;
         }
+
+
+        #region "toolkit"
+
+        public static string[] SentenceTerminators
+        {
+            get
+            {
+                List<string> ToReturn = new List<string>();
+                //". ", "! ", "? ", ".\u00A0"
+                ToReturn.Add(". ");
+                ToReturn.Add("! ");
+                ToReturn.Add("? ");
+                ToReturn.Add(".\u00A0");
+                ToReturn.Add("!\u00A0");
+                ToReturn.Add("?\u00A0");
+                ToReturn.Add(Environment.NewLine);
+                return ToReturn.ToArray();
+            }
+        }
+
+
+        #endregion
+
 
     }
 }
