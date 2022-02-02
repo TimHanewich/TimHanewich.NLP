@@ -202,7 +202,7 @@ namespace TimHanewich.NLP
         //Same as above, EXCEPT: Counts the # of distinct phrases that match the phrase exactly. So a space or period has to come after the phrase for it to be "isolated". For example, if you count the number of occurances for the word "no", you would naturally also be including the number of "now", since "no" is in "now". Use this method to get around that issue.
         public static int CountIsolatedOccurences(this string src, string phrase)
         {
-            string[] parts = src.Split(new string[]{phrase + " ", phrase + ".", phrase + "!", phrase + "?"}, StringSplitOptions.None);
+            string[] parts = src.Split(new string[]{phrase + " ", phrase + ".", phrase + "!", phrase + "?", phrase + ","}, StringSplitOptions.None);
             return parts.Length - 1;
         }
 
