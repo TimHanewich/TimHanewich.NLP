@@ -12,7 +12,7 @@ namespace TimHanewich.NLP
         {
             PhraseProfile pp = new PhraseProfile();
             pp.Phrase = phrase;
-            pp.Occurences = document.CountOccurences(phrase);
+            pp.Occurences = document.CountIsolatedOccurences(phrase);
             return pp;
         }
 
