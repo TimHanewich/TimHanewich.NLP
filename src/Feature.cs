@@ -44,76 +44,49 @@ namespace TimHanewich.NLP
                 //Start location
                 ThisNumberFeature.Offset = NextNumIndex;
 
-                //Construct a list of the characters that would indicate an end of a number
-                List<string> IndicatesEndOfNumber = new List<string>();
-                IndicatesEndOfNumber.AddRange(NlpToolkit.SentenceTerminators);
-                IndicatesEndOfNumber.Add(" ");
+                //Get a list of characters that would be considered still part of the number
+                List<string> ConsideredPartOfNumber = new List<string>();
+                ConsideredPartOfNumber.Add("0");
+                ConsideredPartOfNumber.Add("1");
+                ConsideredPartOfNumber.Add("2");
+                ConsideredPartOfNumber.Add("3");
+                ConsideredPartOfNumber.Add("4");
+                ConsideredPartOfNumber.Add("5");
+                ConsideredPartOfNumber.Add("6");
+                ConsideredPartOfNumber.Add("7");
+                ConsideredPartOfNumber.Add("8");
+                ConsideredPartOfNumber.Add("9");
+                ConsideredPartOfNumber.Add(".");
 
-
-                //Find the end location of the number
-                int NumberEndLocation = src.IndexOf(IndicatesEndOfNumber.ToArray(), NextNumIndex);
-                if (NumberEndLocation > -1)
+                //Continue to collect the number
+                List<string> CharsInThisNumber = new List<string>();
+                for (int i = NextNumIndex; i < src.Length; i++)
                 {
-                    //Get the number text - i.e. 72%, 400, 10, etc. (NOT "million", or "billion" if it comes after)
-                    string NumberTxt = src.Substring(NextNumIndex, NumberEndLocation - NextNumIndex);
-
-                    //If the last chracter in the numebr text is a comma or a period, move it back one
-                    string LastChar = NumberTxt.Substring(NumberTxt.Length - 1, 1);
-                    if (LastChar == "," || LastChar == ".")
+                    string ThisChar = src[i].ToString();
+                    if (ConsideredPartOfNumber.Contains(ThisChar)) //We are still in the number, so add the char
                     {
-                        NumberEndLocation = NumberEndLocation - 1;
-
-                        //No re-get the number txt, this time with the new number end location
-                        NumberTxt = src.Substring(NextNumIndex, NumberEndLocation - NextNumIndex);
+                        CharsInThisNumber.Add(ThisChar);
                     }
-                    
-                    //Do a quick gut-check... is this even a number? If we detected something that is NOT a number, don't even bother logging it
-                    bool IsDetectedNumber = false;
-                    try
+                    else //We are no longer in the number, so stop the loop 
                     {
-                        if (NumberTxt.Contains("%"))
-                        {
-                            IsDetectedNumber = true;
-                        }
-                        else
-                        {
-                            Convert.ToSingle(NumberTxt);
-                            IsDetectedNumber = true;
-                        }
-                    }
-                    catch
-                    {
-                        IsDetectedNumber = false;   
-                    }
-
-                    //If it is a number that we detected, move on
-                    if (IsDetectedNumber)
-                    {
-                        //Get the position of the space that comes AFTER the word that immediately comes after the number portion above
-                        int NextNextSpaceLocation = src.IndexOf(" ", NumberEndLocation + 1);
-                        if (NextNextSpaceLocation > -1)
-                        {
-                            string TrailingWord = src.Substring(NumberEndLocation, NextNextSpaceLocation - NumberEndLocation);
-                            TrailingWord = TrailingWord.ToLower().Trim();
-                            if (TrailingWord == "hundred" || TrailingWord == "thousand" || TrailingWord == "million" || TrailingWord == "billion" || TrailingWord == "trillion")
-                            {
-                                ThisNumberFeature.Length = NextNextSpaceLocation - NextNumIndex;
-                            }
-                        }
-
-                        //If length is still 0, it means we did not a append a "hundred", "thousand", etc to the end. So just set the length to the number text, i.e. "400"
-                        if (ThisNumberFeature.Length == 0) //If Length is still 0
-                        {
-                            ThisNumberFeature.Length = NumberEndLocation - NextNumIndex;
-                        }
-
-
-                        //Add it
-                        ToReturn.Add(ThisNumberFeature);
-
+                        break;
                     }
                 }
-                
+
+                //If the final character is a period, it is probably because it is the end of a sentence, not serving as a decimal point.
+                if (CharsInThisNumber.Contains("."))
+                {
+                    if (CharsInThisNumber[CharsInThisNumber.Count-1] == ".")
+                    {
+                        CharsInThisNumber.RemoveAt(CharsInThisNumber.Count-1); //Remove the last period.
+                    }
+                }
+
+                //Set end location
+                ThisNumberFeature.Length = CharsInThisNumber.Count;
+
+                //Add it to the list
+                ToReturn.Add(ThisNumberFeature);
                 
 
                 //Refresh next num index
