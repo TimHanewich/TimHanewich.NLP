@@ -60,7 +60,8 @@ namespace TimHanewich.NLP
                 ConsideredPartOfNumber.Add("7");
                 ConsideredPartOfNumber.Add("8");
                 ConsideredPartOfNumber.Add("9");
-                ConsideredPartOfNumber.Add(".");
+                ConsideredPartOfNumber.Add("."); //For example, in the number "1.16"
+                ConsideredPartOfNumber.Add(","); //For example, in the number "100,000"
 
                 //Continue to collect the number
                 List<string> CharsInThisNumber = new List<string>();
@@ -78,12 +79,10 @@ namespace TimHanewich.NLP
                 }
 
                 //If the final character is a period, it is probably because it is the end of a sentence, not serving as a decimal point.
-                if (CharsInThisNumber.Contains("."))
+                string LastChar = CharsInThisNumber[CharsInThisNumber.Count-1];
+                if (LastChar == "." || LastChar == ",")
                 {
-                    if (CharsInThisNumber[CharsInThisNumber.Count-1] == ".")
-                    {
-                        CharsInThisNumber.RemoveAt(CharsInThisNumber.Count-1); //Remove the last period.
-                    }
+                    CharsInThisNumber.RemoveAt(CharsInThisNumber.Count-1); //Remove the last period of comma or whatever
                 }
 
                 //Set end location
@@ -100,6 +99,67 @@ namespace TimHanewich.NLP
             return ToReturn.ToArray();
         }
 
+        //Identifies numbers, but also includes things like $ sign, % sign, "billion", "million" after, etc.
+        public static Feature[] IdentifyNumberPhrases(string src)
+        {
+            Feature[] NumbersOnly = IdentifyNumbers(src);
+            List<Feature> ToReturn = new List<Feature>();
+            foreach (Feature f in NumbersOnly)
+            {
+                
+
+                //Find the starting position
+                //Is the character right before the start a dollar sign? Or another sign that may be of interest to include?
+                int PhraseStartAt = f.Offset; //Default is start at same location as only number
+                if (f.Offset > 0)
+                {
+                    string CharacterBefore = src.Substring(f.Offset - 1, 1);
+                    if (CharacterBefore == "$")
+                    {
+                        PhraseStartAt = f.Offset - 1;
+                    }
+                }
+
+                //Find the ending positioon
+                //Search for common phrases that might come after the number itself - "thousand", "million", etc.
+                int PhraseEndAt = f.Offset + f.Length; //Default is where it ended previously.
+                if (IsFollowedBy(src, f.Offset + f.Length, " hundred thousand"))
+                {   
+                    PhraseEndAt = PhraseEndAt + " hundred thousand".Length;
+                }
+                else if (IsFollowedBy(src, f.Offset + f.Length, " hundred"))
+                {
+                    PhraseEndAt = PhraseEndAt + " hundred".Length;
+                }
+                else if (IsFollowedBy(src, f.Offset + f.Length, " thousand"))
+                {
+                    PhraseEndAt = PhraseEndAt + " thousand".Length;
+                }
+                else if (IsFollowedBy(src, f.Offset + f.Length, " million"))
+                {
+                    PhraseEndAt = PhraseEndAt + " million".Length;
+                }
+                else if (IsFollowedBy(src, f.Offset + f.Length, " billion"))
+                {
+                    PhraseEndAt = PhraseEndAt + " billion".Length;
+                }
+                else if (IsFollowedBy(src, f.Offset + f.Length, " trillion"))
+                {
+                    PhraseEndAt = PhraseEndAt + " trillion".Length;
+                }
+                
+                
+
+                //Create and set the values
+                Feature NumberPhrase = new Feature();
+                NumberPhrase.Offset = PhraseStartAt;
+                NumberPhrase.Length = PhraseEndAt - PhraseStartAt;
+                ToReturn.Add(NumberPhrase);
+            }
+            
+            return ToReturn.ToArray();
+        }
+
         #endregion
 
         #region "toolkit"
@@ -109,6 +169,19 @@ namespace TimHanewich.NLP
         {
             int ToReturn = in_text.IndexOf(new string[]{"0", "1", "2", "3", "4", "5", "6", "7", "8", "9"}, start_at);
             return ToReturn;
+        }
+
+        private static bool IsFollowedBy(string document, int start, string followed_by)
+        {
+            if (document.Length >= start + followed_by.Length)
+            {
+                string PartAfter = document.Substring(start, followed_by.Length);
+                if (PartAfter == followed_by)
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
         #endregion
