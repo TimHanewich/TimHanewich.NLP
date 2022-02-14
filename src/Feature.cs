@@ -164,6 +164,23 @@ namespace TimHanewich.NLP
             return ToReturn.ToArray();
         }
 
+
+        public static Feature[] FindOccurences(string doc, string phrase)
+        {
+            List<Feature> ToReturn = new List<Feature>();
+            int loc1 = doc.ToLower().IndexOf(phrase.ToLower());
+            while (loc1 > -1)
+            {
+                Feature f = new Feature();
+                f.Offset = loc1;
+                f.Length = phrase.Length;
+                f.Text = f.Read(doc);
+                ToReturn.Add(f);
+                loc1 = doc.ToLower().IndexOf(phrase.ToLower(), loc1 + 1); //Find next one
+            }
+            return ToReturn.ToArray();
+        }
+
         #endregion
 
         #region "toolkit"
