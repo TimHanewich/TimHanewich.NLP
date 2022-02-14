@@ -3,10 +3,10 @@ using System.Collections.Generic;
 
 namespace TimHanewich.NLP
 {
-    public class Feature
+    public class Feature : DocumentLocation
     {
-        public int Offset {get; set;} //The beginning of the element
-        public int Length {get; set;} //How many characters long the element is
+
+        public string Text {get; set;} //A copy of the text
 
         //Retrieves the content from the original source text provided
         public string Read(string source)
