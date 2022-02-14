@@ -88,6 +88,9 @@ namespace TimHanewich.NLP
                 //Set end location
                 ThisNumberFeature.Length = CharsInThisNumber.Count;
 
+                //Add the plain text
+                ThisNumberFeature.Text = ThisNumberFeature.Read(src);
+
                 //Add it to the list
                 ToReturn.Add(ThisNumberFeature);
                 
@@ -154,6 +157,7 @@ namespace TimHanewich.NLP
                 Feature NumberPhrase = new Feature();
                 NumberPhrase.Offset = PhraseStartAt;
                 NumberPhrase.Length = PhraseEndAt - PhraseStartAt;
+                NumberPhrase.Text = NumberPhrase.Read(src); //Add the plain text
                 ToReturn.Add(NumberPhrase);
             }
             
