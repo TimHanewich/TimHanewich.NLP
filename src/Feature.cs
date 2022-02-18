@@ -155,6 +155,22 @@ namespace TimHanewich.NLP
             return ToReturn.ToArray();
         }
 
+        //Looks for occurences of a word or phrase that is isolated. I.e. finding the word "and", not including instances where "anderson" is used ('and' is included in 'anderson')
+        public static Feature[] FindIsolatedOccurences(string doc, string phrase)
+        {
+            List<Feature> ToReturn = new List<Feature>();
+            foreach (string word_initiator in NlpToolkit.SentenceInitiators)
+            {
+                foreach (string word_terminator in NlpToolkit.WordTerminators)
+                {
+                    string ToSearchFor = word_initiator + phrase + word_terminator;
+                    Feature[] features = Feature.FindOccurences(doc, ToSearchFor);
+                    ToReturn.AddRange(features);
+                }
+            }
+            return ToReturn.ToArray();
+        }
+
         #endregion
 
         #region "toolkit"
