@@ -239,6 +239,18 @@ namespace TimHanewich.NLP
 
         #region "toolkit"
 
+        public static string[] SentenceInitiators
+        {
+            get
+            {
+                List<string> ToReturn = new List<string>();
+                ToReturn.Add(" ");
+                ToReturn.Add(Environment.NewLine);
+                ToReturn.Add("\n");
+                return ToReturn.ToArray();
+            }
+        }
+
         public static string[] SentenceTerminators
         {
             get
@@ -256,6 +268,18 @@ namespace TimHanewich.NLP
             }
         }
 
+        public static string[] WordTerminators
+        {
+            get
+            {
+                List<string> ToReturn = new List<string>();
+                ToReturn.Add(" ");
+                ToReturn.Add(".");
+                ToReturn.Add("?");
+                ToReturn.Add("!");
+                return ToReturn.ToArray();
+            }
+        }
 
         #endregion
 
