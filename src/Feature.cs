@@ -142,7 +142,7 @@ namespace TimHanewich.NLP
         public static Feature[] FindOccurences(string doc, string phrase)
         {
             List<Feature> ToReturn = new List<Feature>();
-            int loc1 = doc.ToLower().IndexOf(phrase.ToLower());
+            int loc1 = doc.IndexOf(phrase);
             while (loc1 > -1)
             {
                 Feature f = new Feature();
@@ -150,7 +150,7 @@ namespace TimHanewich.NLP
                 f.Length = phrase.Length;
                 f.Text = f.Read(doc);
                 ToReturn.Add(f);
-                loc1 = doc.ToLower().IndexOf(phrase.ToLower(), loc1 + 1); //Find next one
+                loc1 = doc.IndexOf(phrase, loc1 + 1); //Find next one
             }
             return ToReturn.ToArray();
         }
