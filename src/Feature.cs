@@ -164,7 +164,16 @@ namespace TimHanewich.NLP
                 foreach (string word_terminator in NlpToolkit.WordTerminators)
                 {
                     string ToSearchFor = word_initiator + phrase + word_terminator;
-                    Feature[] features = Feature.FindOccurences(doc, ToSearchFor);
+                    Feature[] features = Feature.FindOccurences(doc, ToSearchFor); //Get the occurences
+
+                    //Since we appended a word initiator and word terminator to the search phrase, we have to reduce the offset and length of the feature by those appends
+                    for (int t = 0; t < features.Length; t++)
+                    {
+                        features[t].Offset = features[t].Offset + word_initiator.Length; //Update offset
+                        features[t].Length = features[t].Length - word_initiator.Length - word_terminator.Length; //Update length
+                        features[t].Text = features[t].Read(doc); //Update the text
+                    }
+
                     ToReturn.AddRange(features);
                 }
             }
